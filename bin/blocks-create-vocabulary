@@ -9,9 +9,10 @@ if __name__ == '__main__':
         description="Construct a vocabulary from a list of token counts.\n\n"
                     "The input is expected to be a file with a token count "
                     "and a token on each line, separated by a space.\n\n"
-                    "Tokens are numbered according to the order in which they "
-                    "were read. The UNK, BOS and EOS tokens are numbered in "
-                    "that order.")
+                    "The UNK, BOS and EOS token (if given) are numbered "
+                    "first, in that order. Then tokens are numbered i the "
+                    "order in which they were read. To number words "
+                    "alphabetically pipe through `sort -t ' ' -k 2`.")
     parser.add_argument(
         'infile', type=FileType('r'), nargs='?', default=sys.stdin,
         help="The file from which to read token counts.")
