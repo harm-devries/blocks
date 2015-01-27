@@ -1,0 +1,34 @@
+#!/usr/bin/env python
+import sys
+from argparse import ArgumentParser, FileType
+
+from blocks.scripts import create_vocabulary
+
+if __name__ == '__main__':
+    parser = ArgumentParser(
+        description="Construct a vocabulary from a list of token counts.\n\n"
+                    "The input is expected to be a file with a token count "
+                    "and a token on each line, separated by a space.\n\n"
+                    "Tokens are numbered according to the order in which they "
+                    "were read. The UNK, BOS and EOS tokens are numbered in "
+                    "that order.")
+    parser.add_argument(
+        'infile', type=FileType('r'), nargs='?', default=sys.stdin,
+        help="The file from which to read token counts.")
+    parser.add_argument(
+        'outfile', type=FileType('wb'),
+        help="The file to which to write the dictionary of word counts.")
+    parser.add_argument('--bos', type=str, nargs='?', const='<S>',
+                        help="Add the BOS token to the vocabulary.")
+    parser.add_argument('--eos', type=str, nargs='?', const='</S>',
+                        help="Add the EOS token to the vocabulary.")
+    parser.add_argument('--unk', type=str, nargs='?', default='<UNK>',
+                        help="The unknown token to use.")
+    parser.add_argument('--limit', type=int,
+                        help="Limit the number of words in the vocabulary. "
+                             "This includes the (optional) UNK, EOS and BOS "
+                             "tokens")
+    args = parser.parse_args()
+
+    create_vocabulary(args.infile, args.outfile, args.unk, args.eos, args.bos,
+                      args.limit)
