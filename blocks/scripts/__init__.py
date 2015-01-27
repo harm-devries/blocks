@@ -34,10 +34,8 @@ def count_tokens(infile, outfile, token='word'):
             counter.update(line.split())
         else:
             counter.update(line.strip())
-    infile.close()
     for token, count in counter.most_common():
         outfile.write("{} {}\n".format(count, token))
-    outfile.close()
 
 
 def create_vocabulary(infile, outfile, unk='<UNK>', eos=None, bos=None):
@@ -51,6 +49,4 @@ def create_vocabulary(infile, outfile, unk='<UNK>', eos=None, bos=None):
         count, token = line.rstrip().split(maxsplit=1)
         vocabulary[token] = index
         index += 1
-    infile.close()
     dill.dump(vocabulary, outfile)
-    outfile.close()
