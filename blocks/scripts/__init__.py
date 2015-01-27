@@ -40,8 +40,7 @@ def count_tokens(infile, outfile, token='word'):
     outfile.close()
 
 
-def create_vocabulary(infile, outfile, unk='<UNK>', eos=None, bos=None,
-                      limit=None):
+def create_vocabulary(infile, outfile, unk='<UNK>', eos=None, bos=None):
     vocabulary = {}
     index = 0
     for token in (unk, eos, bos):
@@ -49,8 +48,6 @@ def create_vocabulary(infile, outfile, unk='<UNK>', eos=None, bos=None,
             vocabulary[token] = index
             index += 1
     for line in infile:
-        if limit == index:
-            break
         count, token = line.rstrip().split(maxsplit=1)
         vocabulary[token] = index
         index += 1
