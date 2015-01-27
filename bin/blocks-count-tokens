@@ -6,12 +6,12 @@ from blocks.scripts import count_tokens
 
 if __name__ == '__main__':
     parser = ArgumentParser(
-        description="Count words or characters in text files.\n\n"
-                    "Reads lines from a text file(s) or standard input and "
-                    "counts the number of tokens. Outputs a list of token "
-                    "counts and tokens separated by a space. Can be used in "
-                    "pipelines e.g. to count lowercased tokens use: `tr "
-                    "[:upper:] [:lower:] | blocks-count-tokens`")
+        description="Count words or characters in text files. Reads lines "
+                    "from a text file(s) or standard input and counts the "
+                    "number of tokens. Outputs a list of token counts and "
+                    "tokens separated by a space. Can be used in pipelines "
+                    "e.g. to count lowercased tokens use: `tr [:upper:] "
+                    "[:lower:] | blocks-count-tokens` ")
     parser.add_argument(
         'infile', type=FileType('r'), nargs='?', default=sys.stdin,
         help="The file from which to read text")

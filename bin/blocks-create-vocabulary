@@ -6,16 +6,15 @@ from blocks.scripts import create_vocabulary
 
 if __name__ == '__main__':
     parser = ArgumentParser(
-        description="Construct a vocabulary from a list of token counts.\n\n"
-                    "The input is expected to be a file with a token count "
-                    "and a token on each line, separated by a space.\n\n"
-                    "The UNK, BOS and EOS token (if given) are numbered "
-                    "first, in that order. Then tokens are numbered in the "
-                    "order in which they were read. To number words "
-                    "alphabetically pipe through `sort -t ' ' -k 2`. If you "
-                    "want to limit your vocabulary, simply use e.g. `head -n "
-                    "1000`. If you need to sort your input, you can use `sort "
-                    "-n`")
+        description="Construct a vocabulary from a list of token counts. The "
+                    "input is expected to be a file with a token count and a "
+                    "token on each line, separated by a space. The UNK, BOS "
+                    "and EOS token (if given) are numbered first, in that "
+                    "order. Then tokens are numbered in the order in which "
+                    "they were read. To number words alphabetically pipe "
+                    "through `sort -t ' ' -k 2`. If you want to limit your "
+                    "vocabulary, simply use e.g. `head -n 1000`. If you need "
+                    "to sort your input, you can use `sort -n`")
     parser.add_argument(
         'infile', type=FileType('r'), nargs='?', default=sys.stdin,
         help="The file from which to read token counts.")
