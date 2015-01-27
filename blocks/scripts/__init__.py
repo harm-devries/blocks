@@ -3,6 +3,12 @@ from collections import Counter
 
 import dill
 
+try:
+    BrokenPipeError
+except NameError:
+    # Note that IOError can strictly speaking be more things!
+    BrokenPipeError = IOError
+
 
 def continue_training(infile, rec_limit=None):
     if rec_limit:
@@ -34,8 +40,11 @@ def count_tokens(infile, outfile, token='word'):
             counter.update(line.split())
         else:
             counter.update(line.strip())
-    for token, count in counter.most_common():
-        outfile.write("{} {}\n".format(count, token))
+    try:
+        for token, count in counter.most_common():
+            outfile.write("{} {}\n".format(count, token))
+    except BrokenPipeError:
+        pass
 
 
 def create_vocabulary(infile, outfile, unk='<UNK>', eos=None, bos=None):
