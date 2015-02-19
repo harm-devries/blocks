@@ -135,8 +135,9 @@ class ComputationGraph(object):
             substitutes.
 
         """
+        print replacements
         return ComputationGraph(theano.clone(self.outputs,
-                                             replace=replacements))
+                                             replace=replacements, strict=False))
 
     def get_theano_function(self, additional_updates=None):
         """Create Theano function from the graph contained."""
@@ -328,3 +329,85 @@ def apply_noise(computation_graph, variables, level, seed=None):
         replace[variable] = (variable +
                              rng.normal(variable.shape, std=level))
     return computation_graph.replace(replace)
+    
+def apply_dropout(computation_graph, inputs, weights, dropout_rate=0.5, seed=None):
+    """Add dropout to specified inputs and weights of computation graph.
+    
+    Parameters
+    ----------
+    computation_graph : instance of :class:`ComputationGraph`
+        The computation graph.
+    inputs : :class:`~tensor.TensorVariable`  
+        Input variables to be dropped out. 
+    weights : :class:`~tensor.TensorVariable`
+        Corresponding weight variables that will be multiplied
+        by the inverse dropout rate.
+    dropout_rate : int, optional
+        The probability that inputs will be dropped out.
+        Defaults to 0.5.
+    seed : int, optional
+        The seed with which
+        :class:`~theano.sandbox.rng_mrg.MRG_RandomStreams` is initialized,
+        is set to 1 by default.
+        
+    Notes
+    -----
+    We do not divide the weights by dropout_rate during test time, instead we
+    multiply by (1/dropout_rate) at training time. 
+    """
+    if not seed:
+        seed = config.default_seed
+    rng = MRG_RandomStreams(seed)
+    dropout_inputs = zip(inputs, [s*rng.binomial(n=1, p=dropout_rate, size=s.shape, dtype=theano.config.floatX)
+                                  for s in inputs])
+    dropout_weights = zip(weights, [W*(1/dropout_rate) for W in weights])
+    replacements = {k:v for k, v in dropout_inputs + dropout_weights}
+    
+    print replacements
+    
+    return computation_graph.replace(replacements)
+    
+    
+def test_dropout():
+    import theano.tensor as tensor
+    from theano.printing import pp
+    import numpy
+    from blocks.bricks import MLP, Identity, Rectifier
+    from blocks.initialization import Constant
+    from blocks.roles import WEIGHTS, INPUT
+    from blocks.filter import VariableFilter
+    theano.config.floatX = 'float32'
+    x = tensor.fmatrix('x')
+    
+    num_examples = 10000
+    dim = 10
+    mlp = MLP(dims=[dim, dim, 1], activations=[Identity(), Identity()], use_bias=False)
+    mlp.weights_init = Constant(1.)
+    mlp.initialize()
+    
+    y = mlp.apply(x)
+    cg = ComputationGraph([y])
+    inputs = VariableFilter(roles=[INPUT], bricks=mlp.linear_transformations)(cg.variables)
+    print inputs
+    weights = VariableFilter(roles=[WEIGHTS], bricks=mlp.linear_transformations)(cg.variables)
+    dropout_cg = apply_dropout(cg, inputs[::-1], weights[::-1], 0.5)
+    
+    f = theano.function(dropout_cg.inputs, dropout_cg.outputs[0])
+    f2 = theano.function(cg.inputs, cg.outputs[0])
+    
+    #Print theano graph to check what happened
+    theano.printing.debugprint(f.maker.fgraph.outputs[0])
+    theano.printing.debugprint(f2.maker.fgraph.outputs[0])
+    
+    #Check if 
+    X = numpy.ones((num_examples, dim)).astype('float32')
+    y1 = f(X).sum()
+    y2 = f2(X).sum()
+    print y1, y2
+    assert(y2 == num_examples*dim*dim*dim)
+    assert(abs(y2 - y1)/y2 < 0.01)
+    
+    
+   
+    
+

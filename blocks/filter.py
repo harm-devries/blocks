@@ -132,7 +132,7 @@ class VariableFilter(object):
         if self.name:
             variables = [var for var in variables
                          if hasattr(var.tag, 'name') and
-                         re.match(self.name, var.tag.name)]
+                         re.match(self.name, var.name)]
         if self.application:
             variables = [var for var in variables
                          if get_application_call(var) and
